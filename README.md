@@ -241,7 +241,7 @@ This project is created for the GenAI For GenZ Challenge.
 
 ## 👨‍💻 Author
 
-Built with ❤️ for the GenAI For GenZ Challenge
+Built with venkii for the GenAI For GenZ Challenge
 
 ## 🙏 Acknowledgments
 
@@ -249,11 +249,3 @@ Built with ❤️ for the GenAI For GenZ Challenge
 - Streamlit for the amazing web framework
 - FAISS for efficient similarity search
 - The open-source community
-
-## 📞 Support
-
-If you encounter any issues or have questions, please open an issue in the repository.
-
----
-
-**Made with 🚀 by leveraging the power of AI to democratize access to policy information**
