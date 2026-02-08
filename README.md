@@ -225,6 +225,13 @@ The following parameters can be adjusted in `rag_engine.py`:
 - **Embedding model**: Currently using "all-MiniLM-L6-v2"
 - **LLM model**: Currently using "gemini-2.5-flash"
 
+## 📚 Documentation
+
+* **Technical Documentation**:https://docs.google.com/document/d/1qNuQ6BL30BAtPhf0OWW5CabJsSnqQwb_IW4KAvZp7eQ/edit?usp=sharing
+
+
+
+---
 ## 🔒 Privacy & Security
 
 - Uploaded PDFs are stored temporarily in `temp_uploads/` directory
