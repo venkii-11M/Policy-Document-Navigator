@@ -76,13 +76,6 @@ with st.sidebar:
         st.rerun()
     
     st.divider()
-    st.markdown("### 💡 Example Questions")
-    st.markdown("""
-    - What is the remote work policy?
-    - How many vacation days?
-    - What are the health benefits?
-    - Explain the confidentiality clause
-    """)
 
 # Main chat interface
 st.title("💬 Policy Chat Assistant")
@@ -109,10 +102,21 @@ if st.session_state.pdf_loaded:
         with st.chat_message("assistant"):
             with st.spinner("Thinking..."):
                 response = rag.ask(prompt)
-                st.markdown(response)
+                answer_text = response['answer']
+                
+                # Display the answer
+                st.markdown(answer_text)
+                
+                # Display relevant pages if available
+                if response.get('relevant_pages'):
+                    pages = response['relevant_pages']
+                    st.caption(f"📄 Referenced pages: {', '.join(map(str, pages))}")
         
         # Add assistant response to chat history
-        st.session_state.messages.append({"role": "assistant", "content": response})
+        st.session_state.messages.append({
+            "role": "assistant", 
+            "content": answer_text + (f"\n\n*Referenced pages: {', '.join(map(str, response['relevant_pages']))}" if response.get('relevant_pages') else "")
+        })
         st.rerun()
 else:
     st.info("👈 Please upload a policy document from the sidebar to start chatting!")

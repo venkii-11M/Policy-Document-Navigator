@@ -9,7 +9,7 @@ import re
 
 from scaledown import compress
 
-client = genai.Client(api_key="AIzaSyC4qtUlH0o7mO5QxJ_lSpFs8qOCbJ_yVrg")
+client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
 class PolicyRAG:
     def __init__(self):
@@ -28,13 +28,19 @@ class PolicyRAG:
         self.page_texts = []
         page_chunks = []
         
-        for page_num, page in enumerate(reader.pages, start=1):
+        # Extract all page texts first
+        all_page_texts = []
+        for page in reader.pages:
             page_text = page.extract_text()
             self.page_texts.append(page_text)
-            
-            # Compress page text
-            compressed_page = compress(page_text)
-            
+            all_page_texts.append(page_text)
+        
+        # Compress all pages in parallel
+        from scaledown import compress_batch
+        compressed_pages = compress_batch(all_page_texts)
+        
+        # Process compressed pages into chunks
+        for page_num, (compressed_page, original_text) in enumerate(zip(compressed_pages, all_page_texts), start=1):
             # Split into chunks while preserving page number
             splitter = RecursiveCharacterTextSplitter(
                 chunk_size=500,
@@ -46,7 +52,7 @@ class PolicyRAG:
                 page_chunks.append({
                     'text': chunk,
                     'page': page_num,
-                    'original_text': page_text[:200]  # Store snippet of original text
+                    'original_text': original_text[:200]  # Store snippet of original text
                 })
         
         # Extract chunks and metadata
@@ -65,7 +71,7 @@ class PolicyRAG:
         Returns: dict with 'answer', 'citations', and 'relevant_pages'
         """
         q_vector = self.embedder.encode([question])
-        _, indices = self.index.search(q_vector, k=10)
+        _, indices = self.index.search(q_vector, k=15)
 
         # Collect context with metadata
         context_parts = []
@@ -88,9 +94,13 @@ class PolicyRAG:
         prompt = f"""
 Answer the question using ONLY the policy text below.
 If the policy does not explicitly mention it, say so clearly.
-You may briefly explain implied alignment, if any, without assuming facts.
 
-When you reference information, mention the page number like "According to page X" or "On page Y".
+IMPORTANT: 
+- Do NOT include page numbers or page references like "(On page X)" in your answer
+- Keep answers SHORT and IMPACTFUL (3-5 bullet points max)
+- Use clear, direct language
+- Focus on key information only
+- Start with the main point, then add essential details
 
 POLICY TEXT:
 {context}
